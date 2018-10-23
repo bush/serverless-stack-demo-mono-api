@@ -20,8 +20,7 @@ provider:
   environment:
     tableName:
       #${file(../database/serverless.yml):custom.tableName}
-      #'Fn::ImportValue': NotesTableName
-      tableFooBoo
+      'Fn::ImportValue': NotesTableName
 
 
   iamRoleStatements:
