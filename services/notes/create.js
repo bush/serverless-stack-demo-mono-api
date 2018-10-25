@@ -8,7 +8,7 @@ module.exports.main = (event, context, callback) => {
       "Access-Control-Allow-Credentials": true
     },
     body: JSON.stringify({
-      message: 'Get function executed successfully!',
+      message: 'Create function executed successfully!',
       input: event,
     }),
   };
