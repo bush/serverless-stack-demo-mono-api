@@ -1,0 +1,63 @@
+Resources:
+  # The federated identity for our user pool to auth with
+  CognitoIdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      # Generate a name based on the stage
+      IdentityPoolName: ${self:custom.stage}MonoIdentityPool
+      # Don't allow unathenticated users
+      AllowUnauthenticatedIdentities: false
+      # Link to our User Pool
+      CognitoIdentityProviders:
+        - ClientId:
+            Ref: CognitoUserPoolClient
+          ProviderName:
+            Fn::GetAtt: [ "CognitoUserPool", "ProviderName" ]
+          ServerSideTokenCheck: true
+ 
+  # IAM roles
+
+  # Read this issue:  https://github.com/serverless/serverless/issues/2892
+  # At the time of writing folks are trying to set RollMappings like this for example:
+  #  RoleMappings:
+  #    cognito-idp.YOUR_REGION.amazonaws.com/YOUR_COGNITO_USERPOOL_ID:YOUR_COGNITO_CLIENT_ID:
+  #      Type: "Rules"
+  #      AmbiguousRoleResolution: "AuthenticatedRole"
+  #      RulesConfiguration:
+  #        Rules:
+  #          - Claim: "cognito:groups"
+  #            MatchType: "Contains"
+  #            RoleARN: { "Fn::GetAtt": ["CognitoAuthorizedRole", "Arn"] }
+  #            Value: "Admin"
+
+  # All of this allows you to assign a role based on values in then jwt token.  The example
+  # about is explicit about looking for the cognito:groups claim but you only want to assign
+  # roles from the group you can just set Type: Token and this will pick up the group claims.
+
+  # The thread explains a messy workaround so lets just wait to see what aws does to fix it.
+  # For now can just manually update the roll mapping manually in the cognito identity pool console.
+
+  # AWS team is quoted saying this in Oct 2018:
+  # the problem is actually a discrepancy in the documentation, as updating the RoleAttachment
+  # in a Cognito Identitypool isn't supported by Cloud Formation. I do apologize about the
+  # confusion and inconvenience, but this is a limitation of the Cloud Formation service.
+  # We have a feature request in and I have went ahead and +1 the ticket on your behalf.
+
+  CognitoIdentityPoolRoles:
+    Type: AWS::Cognito::IdentityPoolRoleAttachment
+    Properties:
+      IdentityPoolId:
+        Ref: CognitoIdentityPool
+      #RoleMappings:
+      #  "cognito-idp.YOUR_REGION.amazonaws.com/YOUR_COGNITO_USERPOOL_ID:YOUR_COGNITO_CLIENT_ID":
+      #    AmbiguousRoleResolution: "Deny"
+      #    Type: "Token"
+      Roles:
+        authenticated:
+          Fn::GetAtt: [CognitoAuthRole, Arn]
+          
+# Print out the Id of the Identity Pool
+Outputs:
+  IdentityPoolId:
+    Value:
+      Ref: CognitoIdentityPool
