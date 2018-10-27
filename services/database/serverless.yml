@@ -12,6 +12,9 @@ custom:
   profile:
     prod: p2c-prod 
     dev: p2c-dev 
+  tableDeletionPolicy:
+    prod: Retain
+    dev: Delete 
 
 provider:
   name: aws
@@ -24,9 +27,10 @@ resources:
   Resources:
     NotesTable:
       Type: AWS::DynamoDB::Table
+      DeletionPolicy: ${self:custom.tableDeletionPolicy.${self:custom.stage}} 
       Properties:
         # Generate a name based on the stage
-        TableName: ${self:custom.stage}-mono-notes
+        TableName: ${self:custom.stage}-mono-notes-1
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
