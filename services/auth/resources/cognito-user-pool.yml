@@ -21,6 +21,24 @@ Resources:
         - ADMIN_NO_SRP_AUTH
       GenerateSecret: false
 
+  CognitoAdminsGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      # Generate an app client name based on the stage
+      GroupName: "Admins" 
+      Precedence: 0
+      UserPoolId:
+        Ref: CognitoUserPool
+
+  CognitoSellersGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      # Generate an app client name based on the stage
+      GroupName: "Sellers" 
+      Precedence: 0
+      UserPoolId:
+        Ref: CognitoUserPool
+
 # Print out the Id of the User Pool
 Outputs:
   UserPoolId:
